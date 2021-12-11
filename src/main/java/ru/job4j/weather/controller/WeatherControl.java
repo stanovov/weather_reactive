@@ -34,4 +34,16 @@ public class WeatherControl {
     public Mono<Weather> get(@PathVariable Integer id) {
         return weathers.findById(id);
     }
+
+    @GetMapping(value = "/hottest")
+    public Mono<Weather> getHottest() {
+        return weathers.findHottest();
+    }
+
+    @GetMapping(value = "/cityGreatThen/{temperature}", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public Flux<Weather> getGreaterThen(@PathVariable Integer temperature) {
+        Flux<Weather> data = weathers.findGreaterThen(temperature);
+        Flux<Long> delay = Flux.interval(Duration.ofMillis(500));
+        return Flux.zip(data, delay).map(Tuple2::getT1);
+    }
 }
